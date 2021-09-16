@@ -10,7 +10,11 @@
 </head>
 <body>
     <h1>JQuery Multifile Teste</h1>
-    <input type="file" class="multi"  id="T7" multiple/>
+    <form action="ControlerArquivo.php" method="POST" enctype="multipart/form-data">
+        <h3>Selecione o arquivo para upload: </h3>
+        <input type="file" name="arquivo[]" class="multi"  id="T7" multiple/>
+        <button type="submit" name="submit">Enviar</button>
+    </form>
     
 </body>
 

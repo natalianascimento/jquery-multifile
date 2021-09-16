@@ -446,7 +446,7 @@ if (window.jQuery)(function ($) {
 
 				// Add a new file to the list
 				MultiFile.addToList = function (slave, slave_count, files) {
-					//if(window.console) console.log('MultiFile.addToList',slave_count);
+					if(window.console) console.log('MultiFile.addToList',slave_count);
 
 					//# Trigger Event! onFileAppend
 					MultiFile.trigger('FileAppend', slave, MultiFile, files);
@@ -454,6 +454,9 @@ if (window.jQuery)(function ($) {
 
 					var names = $('<span/>');
 					$.each(files, function (i, file) {
+						
+						console.log('Abaixo de names - valor de i: ' + i + ' - Valor de file.name: ' + file.name);
+
 						var v = String(file.name || '' ).replace(/[&<>'"]/g, function(c) { return '&#'+c.charCodeAt()+';'; }),
 								S = MultiFile.STRING,
 								n = S.label || S.file || S.name,
@@ -461,7 +464,7 @@ if (window.jQuery)(function ($) {
 								p = file.type.substr(0,6) == 'image/' ? '<img class="MultiFile-preview" style="'+ MultiFile.previewCss+'"/>' : '',
 								label =	$(
 										(
-											'<span class="MultiFile-label" title="' + t + '">'+
+											'<span class="MultiFile-label" title="' + t + '" id=' + MultiFile.wrapID  + "_" + i + '">'+
 												'<span class="MultiFile-title">'+ n +'</span>'+
 												(MultiFile.preview || $(slave).is('.with-preview') ? p : '' )+
 											'</span>'
@@ -485,7 +488,7 @@ if (window.jQuery)(function ($) {
 						});
 
 						// append file label to list
-						if(i>0 && !!o.separator) names.append(o.separator);
+						//if(i>0 && !!o.separator) names.append(o.separator);
 						names.append(label);
 
 						var v = String(file.name || '' );
@@ -501,87 +504,96 @@ if (window.jQuery)(function ($) {
 							.replace(/\$(i)/gi, i)
 						;
 					});
-
 					$.each(files, function (i, file) {
-						// Create label elements
+						//Create label elements
+						console.log(file);
+						console.log(i);
+						console.log(slave);
+						
 						var
-							r = $('<div class="MultiFile-label"></div>'),
-							b = $('<a class="MultiFile-remove" href="#' + MultiFile.wrapID  + "_" + i + '">' + MultiFile.STRING.remove + '</a>')
-
-								// ********
-								// TODO:
-								// refactor this as a single event listener on the control's
-								// wrapper for better performance and cleaner code
-								// ********
-								.click(function () {
-
-									// get list of files being removed
-									var files_being_removed = FILE_LIST(slave);
-
-									//# Trigger Event! onFileRemove
-									MultiFile.trigger('FileRemove', slave, MultiFile, files_being_removed);
-									//# End Event!
-
-									MultiFile.n--;
-									MultiFile.current.disabled = false;
-
-									// remove the relevant <input type="file"/> element
-									$(slave).remove();
-
-									// remove the relevant label
-									$(this).parent().remove();
-
-									// Show most current element again (move into view) and clear selection
-									$(MultiFile.current).css({
-										position: '',
-										top: ''
-									});
-									$(MultiFile.current).reset().val('').attr('value', '')[0].value = '';
-
-									// point to currently visible element (always true, not necessary)
-									MultiFile.current = MultiFile.wrapper.find('[type=file]:visible');
-
-									// rebuild array with the files that are left.
-									var files_remaining = [], remain_size = 0;
-									// go through each slave
-									$(MultiFile.wrapper).find('input[type=file]').each(function(){
-										// go through each file in each slave
-										$.each(FILE_LIST(this), function (i, file) {
-											if(file.name){
-												console.log('MultiFile.debug> FileRemove> remaining file', file.size, file);
-												// fresh file array
-												files_remaining[files_remaining.length] = file;
-												// fresh size count
-												remain_size += file.size;
-											};
-										});
-									});
-
-									// update MultiFile object
-									MultiFile.files = files_remaining;
-									MultiFile.total_size = remain_size;
-									MultiFile.size_label = sl(remain_size);
-
-									// update current control's reference to MultiFile object
-									$(MultiFile.wrapper).data('MultiFile', MultiFile);
-
-									//# Trigger Event! afterFileRemove
-									MultiFile.trigger('afterFileRemove', slave, MultiFile, files_being_removed);
-									//# End Event!
-
-									//# Trigger Event! onFileChange
-									MultiFile.trigger('FileChange', MultiFile.current, MultiFile, files_remaining);
-									//# End Event!
-
-									return false;
+						r = $('<div class="MultiFile-label"></div>'),
+						b = $('<a class="MultiFile-remove" href="#' + MultiFile.wrapID  + "_" + i + '">' + MultiFile.STRING.remove + '</a>')
+						
+						// ********
+						// TODO:
+						// refactor this as a single event listener on the control's
+						// wrapper for better performance and cleaner code
+						// ********
+						.click(function () {
+							
+							// get list of files being removed
+							var files_being_removed = FILE_LIST(slave);
+							
+							//# Trigger Event! onFileRemove
+							MultiFile.trigger('FileRemove', slave, MultiFile, files_being_removed);
+							//# End Event!
+							
+							MultiFile.n--;
+							MultiFile.current.disabled = false;
+							
+							// remove the relevant <input type="file"/> element
+							$(slave).remove();
+							
+							// remove the relevant label
+							$(this).parent().remove();
+							
+							// Show most current element again (move into view) and clear selection
+							$(MultiFile.current).css({
+								position: '',
+								top: ''
+							});
+							$(MultiFile.current).reset().val('').attr('value', '')[0].value = '';
+							
+							// point to currently visible element (always true, not necessary)
+							MultiFile.current = MultiFile.wrapper.find('[type=file]:visible');
+							
+							// rebuild array with the files that are left.
+							var files_remaining = [], remain_size = 0;
+							// go through each slave
+							$(MultiFile.wrapper).find('input[type=file]').each(function(){
+								// go through each file in each slave
+								$.each(FILE_LIST(this), function (i, file) {
+									if(file.name){
+										console.log('MultiFile.debug> FileRemove> remaining file', file.size, file);
+										// fresh file array
+										files_remaining[files_remaining.length] = file;
+										// fresh size count
+										remain_size += file.size;
+									};
 								});
+							});
+							
+							// update MultiFile object
+							MultiFile.files = files_remaining;
+							MultiFile.total_size = remain_size;
+							MultiFile.size_label = sl(remain_size);
+							
+							// update current control's reference to MultiFile object
+							$(MultiFile.wrapper).data('MultiFile', MultiFile);
+							
+							//# Trigger Event! afterFileRemove
+							MultiFile.trigger('afterFileRemove', slave, MultiFile, files_being_removed);
+							//# End Event!
+							
+							//# Trigger Event! onFileChange
+							MultiFile.trigger('FileChange', MultiFile.current, MultiFile, files_remaining);
+							//# End Event!
+							
+							return false;
+						});
+						
+						console.log("Valor de Names - primeiro: " + names[1]);
+						$.each(names, function(i){
+							console.log("Valor de Names - segundo: " + names[1]);
+							// Insert label
+							MultiFile.list.append(
+								r.append(b, ' ', names[1])
+								);
+						
+					})
+					
 
-						// Insert label
-						MultiFile.list.append(
-							r.append(b, ' ', names)
-						);
-
-					}); // each file?
+				}); //each file?
 
 					//# Trigger Event! afterFileAppend
 					MultiFile.trigger('afterFileAppend', slave, MultiFile, files);
